@@ -11,8 +11,6 @@ use App\Http\Controllers\API\HomeController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('send-email', [HomeController::class, 'sendmail']);
-
 Route::post('login', [AuthController::class, 'signin']);
 Route::post('register', [AuthController::class, 'signup']);
      

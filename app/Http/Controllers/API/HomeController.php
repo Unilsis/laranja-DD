@@ -7,9 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\API\ResponseController as ResponseController;
 use App\Models\Custumer;
  
-use Mail;
-use App\Mail\NotifyMail;
- 
 
 class HomeController extends ResponseController
 { 
@@ -49,22 +46,4 @@ class HomeController extends ResponseController
             return $this->sendResponse($custumers, 'Success', 200);
         }
     }
-
-    public function sendmail(Request $request)
-    {
- 
-      Mail::to($request->email)->send(new NotifyMail($request->custumer));
- 
-      if (Mail::failures()) {
-         return response()->json(array(
-            'status' => 400,
-            'message' => 'Sorry! It was not possible to send the email'
-         ));
-      }else{
-         return response()->json(array(
-            'status' => 200,
-            'message' => 'Great! Successfully send in your mail'
-         ));
-      }
-    } 
 }

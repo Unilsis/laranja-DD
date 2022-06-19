@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\API\ResponseController as ResponseController;
 use Validator;
 use App\Models\User;
+use Mail;
+use App\Mail\NotifyMail;
+use Illuminate\Support\Collection;
 
 class AuthController extends ResponseController
 {
@@ -67,10 +70,12 @@ class AuthController extends ResponseController
     {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
             $authUser = Auth::user(); 
-            $success['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken; 
-            $success['name'] =  $authUser->name;
+
+            $authUser->tokens()->delete();
+            $data['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken; 
+            $data['name'] =  $authUser->name;
    
-            return $this->sendResponse($success, 'User signed in', 200);
+            return $this->sendResponse($data, 'User signed in', 200);
         } 
         else{ 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 401);
@@ -78,12 +83,12 @@ class AuthController extends ResponseController
     }
 
     public function signup(Request $request)
-    {
+    { 
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
-            'confirm_password' => 'required|same:password',
+            'confirm_password' => 'required|same:password'
         ]);
 
         if($validator->fails()){
@@ -93,10 +98,36 @@ class AuthController extends ResponseController
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
-        $success['token'] =  $user->createToken('MyAuthApp')->plainTextToken;
-        $success['name'] =  $user->name;
-        $success['email'] =  $user->email;
 
-        return $this->sendResponse($success, 'User created successfully.', 200);
+        $user->tokens()->delete();
+        $data['token'] =  $user->createToken('MyAuthApp')->plainTextToken;
+        $data['name'] =  $user->name;
+        $data['email'] =  $user->email;
+
+        $emailsend = $this->sendmail($data['email'], $data['name']);
+
+        return $this->sendResponse(
+            $data,
+            [
+                'success'=> 'User created successfully.',
+                'success_mail'=> $emailsend
+            ] ,
+            200
+        );
     }
+
+    public function sendmail($email, $custumer)
+    {
+      Mail::to($email)->send(new NotifyMail($custumer));
+ 
+      if (Mail::failures()) {
+         return response()->json(array(
+            'message_mail' => 'Sorry! It was not possible to send the email'
+         ));
+      }else{
+         return response()->json(array(
+            'message_mail' => 'Great! Successfully send in your mail'
+         ));
+      }
+    } 
 }
