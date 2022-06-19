@@ -15,6 +15,110 @@
                 "operationId": "authLogin",
                 "parameters": [
                     {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorised"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/login_mobile": {
+            "post": {
+                "tags": [
+                    "login_mobile"
+                ],
+                "summary": "Connect to API",
+                "description": "Endpoint to connect to the API through a mobile application",
+                "operationId": "authLoginMobile",
+                "parameters": [
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "password",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "device_name",
+                        "in": "query",
+                        "description": "Nome do dispositvo",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "Nuno's iPhone 12"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorised"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "register"
+                ],
+                "summary": "Connect to API",
+                "description": "Endpoint to connect to API",
+                "operationId": "signup",
+                "parameters": [
+                    {
                         "name": "name",
                         "in": "query",
                         "description": "Nome de usuário",
@@ -89,6 +193,64 @@
                     },
                     "400": {
                         "description": "Bad request"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/findCustomerById/{id}": {
+            "get": {
+                "tags": [
+                    "findCustomerById"
+                ],
+                "summary": "Find Custumer",
+                "description": "find customer by id",
+                "operationId": "findCustomerById",
+                "responses": {
+                    "200": {
+                        "description": "User signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorised"
+                    },
+                    "404": {
+                        "description": "Resource Not Found"
+                    }
+                }
+            }
+        },
+        "/api/findAllCustomer": {
+            "get": {
+                "tags": [
+                    "findAllCustomer"
+                ],
+                "summary": "All customer",
+                "description": "FindA all customer",
+                "operationId": "findAllCustomer",
+                "responses": {
+                    "200": {
+                        "description": "User signed in",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "description": "Unauthorised"
                     },
                     "404": {
                         "description": "Resource Not Found"

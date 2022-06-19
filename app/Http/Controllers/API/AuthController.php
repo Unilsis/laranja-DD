@@ -14,11 +14,121 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends ResponseController
 {
+
     /**
     * @OA\Post(
     * path="/api/login",
     * operationId="authLogin",
     * tags={"login"},
+    * summary="Connect to API",
+    * description="Endpoint to connect to API",
+    *  @OA\Parameter(
+    *      name="email",
+    *      in="query",
+    *      required=true,
+    *      @OA\Schema(
+    *           type="string"
+    *      )
+    *   ),
+    *  @OA\Parameter(
+    *      name="password",
+    *      in="query",
+    *      required=true,
+    *      @OA\Schema(
+    *           type="string"
+    *      )
+    *   ),
+    *  @OA\Response(
+    *      response=200,
+    *      description="User signed in",
+    *      @OA\JsonContent()
+    *  ),
+    *  @OA\Response(response=400, description="Bad request"),
+    *  @OA\Response(response=401, description="Unauthorised"),
+    *  @OA\Response(response=404, description="Resource Not Found"),
+    * )
+    */
+    public function signin(Request $request)
+    {
+        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
+            $authUser = Auth::user(); 
+
+            $authUser->tokens()->delete();
+            $data['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken; 
+            $data['name'] =  $authUser->name;
+   
+            return $this->sendResponse($data, 'User signed in', 200);
+        } 
+        else{
+            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 401);
+        }
+    }
+
+    /**
+    * @OA\Post(
+    * path="/api/login_mobile",
+    * operationId="authLoginMobile",
+    * tags={"login_mobile"},
+    * summary="Connect to API",
+    * description="Endpoint to connect to the API through a mobile application",
+    *  @OA\Parameter(
+    *      name="email",
+    *      in="query",
+    *      required=true,
+    *      @OA\Schema(
+    *           type="string"
+    *      )
+    *   ),
+    *  @OA\Parameter(
+    *      name="password",
+    *      in="query",
+    *      required=true,
+    *      @OA\Schema(
+    *           type="string"
+    *      )
+    *   ),
+    *  @OA\Parameter(
+    *      description="Nome do dispositvo",
+    *      name="device_name",
+    *      in="query",
+    *      required=true,
+    *      example="Nuno's iPhone 12",
+    *      @OA\Schema(
+    *           type="string"
+    *      )
+    *   ),
+    *  @OA\Response(
+    *      response=200,
+    *      description="User signed in",
+    *      @OA\JsonContent()
+    *  ),
+    *  @OA\Response(response=400, description="Bad request"),
+    *  @OA\Response(response=401, description="Unauthorised"),
+    *  @OA\Response(response=404, description="Resource Not Found"),
+    * )
+    */
+    public function signin_mobile(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+ 
+        $user = User::where('email', $request->email)->first();
+ 
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return $this->sendError('Unauthorised', 'The provided credentials are incorrect.', 401);
+        }
+ 
+        return $user->createToken($request->device_name)->plainTextToken;
+    }
+
+    /**
+    * @OA\Post(
+    * path="/api/register",
+    * operationId="signup",
+    * tags={"register"},
     * summary="Connect to API",
     * description="Endpoint to connect to API",
     *
@@ -66,40 +176,6 @@ class AuthController extends ResponseController
     *  @OA\Response(response=404, description="Resource Not Found"),
     * )
     */
-
-    public function signin(Request $request)
-    {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 
-            $authUser = Auth::user(); 
-
-            $authUser->tokens()->delete();
-            $data['token'] =  $authUser->createToken('MyAuthApp')->plainTextToken; 
-            $data['name'] =  $authUser->name;
-   
-            return $this->sendResponse($data, 'User signed in', 200);
-        } 
-        else{ 
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 401);
-        } 
-    }
-
-    public function signin_mobile(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-            'device_name' => 'required',
-        ]);
- 
-        $user = User::where('email', $request->email)->first();
- 
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return $this->sendError('Unauthorised', 'The provided credentials are incorrect.', 401);
-        }
- 
-        return $user->createToken($request->device_name)->plainTextToken;
-    }
-
     public function signup(Request $request)
     { 
         $validator = Validator::make($request->all(), [

@@ -31,12 +31,46 @@ class HomeController extends ResponseController
         return response()->json(['message' => 'WELCOME TO ORANGE API']);
     }
 
+    /**
+    * @OA\Get(
+    * path="/api/findCustomerById/{id}",
+    * operationId="findCustomerById",
+    * tags={"findCustomerById"},
+    * summary="Find Custumer",
+    * description="find customer by id",
+    *  @OA\Response(
+    *      response=200,
+    *      description="User signed in",
+    *      @OA\JsonContent()
+    *  ),
+    *  @OA\Response(response=400, description="Bad request"),
+    *  @OA\Response(response=401, description="Unauthorised"),
+    *  @OA\Response(response=404, description="Resource Not Found"),
+    * )
+    */
     public function findCustomer($id)
     {
         $custumers = Custumer::findOrFail($id);
         return $this->sendResponse($custumers, 'Success', 200);
     }
 
+    /**
+    * @OA\Get(
+    * path="/api/findAllCustomer",
+    * operationId="findAllCustomer",
+    * tags={"findAllCustomer"},
+    * summary="All customer",
+    * description="FindA all customer",
+    *  @OA\Response(
+    *      response=200,
+    *      description="User signed in",
+    *      @OA\JsonContent()
+    *  ),
+    *  @OA\Response(response=400, description="Bad request"),
+    *  @OA\Response(response=401, description="Unauthorised"),
+    *  @OA\Response(response=404, description="Resource Not Found"),
+    * )
+    */
     public function findAllCustomer()
     {
         $custumers = Custumer::get();
