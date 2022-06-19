@@ -57,7 +57,12 @@ class RouteServiceProvider extends ServiceProvider
     protected function configureRateLimiting()
     {
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
+            return Limit::perMinute(5)->by(optional($request->user())->id ?: $request->ip())
+                ->response(fn() => response()
+                        ->json([ 
+                            'message' => 'It is not allowed to exceed 5 requests per minute.'
+                        ], 429)
+                );
         });
     }
 }

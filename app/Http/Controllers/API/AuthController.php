@@ -10,6 +10,7 @@ use App\Models\User;
 use Mail;
 use App\Mail\NotifyMail;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends ResponseController
 {
@@ -80,6 +81,23 @@ class AuthController extends ResponseController
         else{ 
             return $this->sendError('Unauthorised.', ['error'=>'Unauthorised'], 401);
         } 
+    }
+
+    public function signin_mobile(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'device_name' => 'required',
+        ]);
+ 
+        $user = User::where('email', $request->email)->first();
+ 
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return $this->sendError('Unauthorised', 'The provided credentials are incorrect.', 401);
+        }
+ 
+        return $user->createToken($request->device_name)->plainTextToken;
     }
 
     public function signup(Request $request)
